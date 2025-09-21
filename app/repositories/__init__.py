@@ -14,6 +14,14 @@ class UserAlreadyExistsError(RepositoryError):
     """Usuario ya existe (duplicado userName)"""
     pass
 
+class GroupNotFoundError(RepositoryError):
+    """Grupo no encontrado"""
+    pass
+
+class GroupAlreadyExistsError(RepositoryError):
+    """Grupo ya existe (duplicado displayName)"""
+    pass
+
 class DatabaseError(RepositoryError):
     """Error de base de datos"""
     pass

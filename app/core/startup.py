@@ -4,7 +4,7 @@ Inicialización de singletons y datos iniciales
 from app.core.database import get_db
 from app.core.policies import get_policies
 from app.core.logger import get_logger
-from app.models.database import UserModel
+from app.models.database import UserModel, GroupModel
 
 logger = get_logger("startup")
 
@@ -34,6 +34,39 @@ def seed_initial_data():
     if existing_users[0]['count'] > 0:
         logger.info("Initial data already exists, skipping seed")
         return
+    
+    # Crear grupos iniciales
+    initial_groups = [
+        GroupModel(
+            id='grp_hr_readers',
+            displayName='HR_READERS',
+            members=[]  # Se asignarán después
+        ),
+        GroupModel(
+            id='grp_fin_approvers',
+            displayName='FIN_APPROVERS',
+            members=[]
+        ),
+        GroupModel(
+            id='grp_admins',
+            displayName='ADMINS',
+            members=[]
+        )
+    ]
+    
+    # Insertar grupos
+    insert_group_query = """
+        INSERT INTO groups 
+        (id, displayName, members, created, lastModified)
+        VALUES (?, ?, ?, ?, ?)
+    """
+    
+    for group in initial_groups:
+        group_data = group.to_dict()
+        db.execute_insert(insert_group_query, (
+            group_data['id'], group_data['displayName'], group_data['members'],
+            group_data['created'], group_data['lastModified']
+        ))
     
     # Crear usuarios iniciales usando UserModel
     initial_users = [
@@ -73,7 +106,7 @@ def seed_initial_data():
     ]
     
     # Insertar usuarios usando parámetros (protección SQL injection)
-    insert_query = """
+    insert_user_query = """
         INSERT INTO users 
         (id, userName, givenName, familyName, active, emails, groups_list, dept, riskScore, created, lastModified)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -81,11 +114,26 @@ def seed_initial_data():
     
     for user in initial_users:
         user_data = user.to_dict()
-        db.execute_insert(insert_query, (
+        db.execute_insert(insert_user_query, (
             user_data['id'], user_data['userName'], user_data['givenName'], 
             user_data['familyName'], user_data['active'], user_data['emails'], 
             user_data['groups_list'], user_data['dept'], user_data['riskScore'], 
             user_data['created'], user_data['lastModified']
         ))
     
-    logger.info("Initial data seeded", users_created=len(initial_users))
+    # Actualizar grupos con miembros (relaciones Many-to-Many)
+    group_memberships = {
+        'grp_hr_readers': ['usr_jdoe'],
+        'grp_fin_approvers': ['usr_agonzalez'],
+        'grp_admins': ['usr_mrios']
+    }
+    
+    import json
+    for group_id, members in group_memberships.items():
+        members_json = json.dumps(members)
+        update_query = "UPDATE groups SET members = ? WHERE id = ?"
+        db.execute_update(update_query, (members_json, group_id))
+    
+    logger.info("Initial data seeded", 
+                users_created=len(initial_users), 
+                groups_created=len(initial_groups))
