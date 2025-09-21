@@ -10,6 +10,9 @@ from app.core.logger import configure_logging, get_logger
 from app.core.middleware import LoggingMiddleware
 from app.core.startup import initialize_singletons, seed_initial_data
 
+# Import routers
+from app.views.scim_users import router as scim_users_router
+
 # Configurar logging primero
 configure_logging()
 logger = get_logger("main")
@@ -56,6 +59,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Incluir routers SCIM
+app.include_router(scim_users_router)
 
 @app.get("/")
 async def root():
