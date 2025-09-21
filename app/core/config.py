@@ -26,9 +26,11 @@ class Settings(BaseSettings):
     db_path: str = Field(default="./data/identity.db", alias="DB_PATH")
     
     # JWT Configuration
-    jwt_secret: str = Field(default_factory=lambda: secrets.token_urlsafe(32), alias="JWT_SECRET")
-    jwt_algorithm: str = Field(default="HS256", alias="JWT_ALGORITHM")
-    jwt_expire_minutes: int = Field(default=30, alias="JWT_EXPIRE_MINUTES")
+    jwt_secret: str = Field(default="your-super-secret-jwt-key-change-in-production")
+    jwt_algorithm: str = Field(default="HS256", description="JWT signing algorithm (HS256 or RS256)")
+    jwt_expiration_minutes: int = Field(default=60, description="JWT token expiration time in minutes")
+    jwt_issuer: str = Field(default="identity-microservice", description="JWT issuer claim")
+    jwt_audience: str = Field(default="identity-api", description="JWT audience claim")
     
     # Logging
     log_level: str = Field(default="INFO", alias="LOG_LEVEL")
