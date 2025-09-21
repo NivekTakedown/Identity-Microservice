@@ -2,8 +2,8 @@
 Schemas Pydantic para SCIM 2.0
 """
 from datetime import datetime
-from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, Field, field_validator
+from typing import List, Optional, Dict, Any, Union
+from pydantic import BaseModel, Field, field_validator, validator
 import re
 
 
@@ -151,15 +151,6 @@ class UserUpdateSCIM(BaseModel):
         return v
 
 
-class SCIMResponse(BaseModel):
-    """Formato de respuestas estándar SCIM"""
-    schemas: List[str]
-    totalResults: int
-    Resources: List[UserSCIM] = []
-    startIndex: int = 1
-    itemsPerPage: int = 100
-
-
 class SCIMError(BaseModel):
     """Formato de errores SCIM"""
     schemas: List[str] = ["urn:ietf:params:scim:api:messages:2.0:Error"]
@@ -272,3 +263,12 @@ def scim_create_to_user_model(user_create: UserCreateSCIM):
         dept=user_create.dept,
         riskScore=user_create.riskScore
     )
+
+
+class SCIMResponse(BaseModel):
+    """Respuesta SCIM estándar para listados (genérica)"""
+    schemas: List[str] = Field(default=["urn:ietf:params:scim:api:messages:2.0:ListResponse"])
+    totalResults: int = Field(description="Total number of results")
+    Resources: List[Union[UserSCIM, GroupSCIM, dict]] = Field(default=[], description="Array of resources")
+    startIndex: int = Field(default=1, description="1-based start index")
+    itemsPerPage: int = Field(description="Number of items returned")
