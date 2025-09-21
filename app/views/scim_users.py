@@ -495,10 +495,10 @@ async def delete_user(user_id: str):
             )
         
         logger.info("SCIM user deleted successfully via API", userId=user_id)
-        return JSONResponse(
-            status_code=status.HTTP_204_NO_CONTENT,
-            content=None
-        )
+        
+        # Solo retornar None o usar Response sin contenido
+        from fastapi import Response
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
         
     except HTTPException:
         raise

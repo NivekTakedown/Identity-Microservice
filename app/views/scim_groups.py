@@ -504,10 +504,9 @@ async def delete_group(group_id: str):
             )
         
         logger.info("SCIM group deleted successfully via API", groupId=group_id)
-        return JSONResponse(
-            status_code=status.HTTP_204_NO_CONTENT,
-            content=None
-        )
+        
+        from fastapi import Response
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
         
     except HTTPException:
         raise
