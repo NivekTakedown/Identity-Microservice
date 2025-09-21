@@ -1,0 +1,14 @@
+# FastAPI y componentes básicos
+fastapi
+uvicorn
+
+# Validación y configuración
+pydantic
+pydantic-settings
+
+# Testing
+pytest
+httpx
+
+# Logging estructurado
+structlog
