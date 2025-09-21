@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import get_settings, validate_configuration
 from app.core.logger import configure_logging, get_logger
 from app.core.middleware import LoggingMiddleware
+from app.core.startup import initialize_singletons, seed_initial_data
 
 # Configurar logging primero
 configure_logging()
@@ -22,6 +23,13 @@ async def lifespan(app: FastAPI):
     """Manejo del ciclo de vida de la aplicación"""
     # Startup
     logger.info("Starting Identity Microservice", version=settings.app_version, environment=settings.environment)
+    
+    # Inicializar singletons
+    initialize_singletons()
+    
+    # Cargar datos iniciales
+    seed_initial_data()
+    
     logger.info("Application startup completed", service=settings.app_name)
     
     yield

@@ -1,0 +1,55 @@
+{
+  "policies": [
+    {
+      "ruleId": "HR-Payroll-01",
+      "effect": "Permit",
+      "description": "HR department can access payroll on trusted devices",
+      "conditions": {
+        "subject.dept": {
+          "eq": "HR"
+        },
+        "resource.type": {
+          "eq": "payroll"
+        },
+        "context.deviceTrusted": {
+          "eq": true
+        }
+      }
+    },
+    {
+      "ruleId": "Risk-StepUp-01",
+      "effect": "Challenge",
+      "description": "High risk users or non-approved geo require step-up",
+      "conditions": {
+        "OR": [
+          {
+            "subject.riskScore": {
+              "gte": 70
+            }
+          },
+          {
+            "context.geo": {
+              "not_in": [
+                "CL",
+                "CO"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "ruleId": "Admins-NonProd-01",
+      "effect": "Permit",
+      "description": "Admins can access non-prod, challenge for prod",
+      "conditions": {
+        "subject.groups": {
+          "contains": "ADMINS"
+        },
+        "resource.env": {
+          "ne": "prod"
+        }
+      }
+    }
+  ]
+}
