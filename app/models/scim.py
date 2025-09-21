@@ -204,9 +204,15 @@ class GroupCreateSCIM(BaseModel):
         return v.strip()
 
 
-# Funciones helper para conversión
-def user_model_to_scim(user_model) -> UserSCIM:
-    """Convertir UserModel a UserSCIM"""
+# Función helper mejorada para conversión
+def user_model_to_scim(user_model, user_groups: List[str] = None) -> UserSCIM:
+    """
+    Convertir UserModel a UserSCIM con grupos consistentes
+    
+    Args:
+        user_model: UserModel de la base de datos
+        user_groups: Lista de grupos obtenida de forma consistente desde GroupRepository
+    """
     from app.models.database import UserModel
     
     # Convertir emails de lista de strings a lista de SCIMEmail
@@ -241,7 +247,7 @@ def user_model_to_scim(user_model) -> UserSCIM:
         name=name,
         active=user_model.active,
         emails=emails,
-        groups=user_model.groups_list,
+        groups=user_groups or [],  # Usar grupos consistentes pasados como parámetro
         dept=user_model.dept,
         riskScore=user_model.riskScore,
         meta=meta
@@ -263,7 +269,6 @@ def scim_create_to_user_model(user_create: UserCreateSCIM):
         familyName=user_create.name.familyName if user_create.name else None,
         active=user_create.active,
         emails=emails,
-        groups_list=user_create.groups,
         dept=user_create.dept,
         riskScore=user_create.riskScore
     )

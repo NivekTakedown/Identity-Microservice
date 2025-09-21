@@ -17,7 +17,6 @@ class UserModel:
                  familyName: str = None,
                  active: bool = True,
                  emails: List[str] = None,
-                 groups_list: List[str] = None,
                  dept: str = None,
                  riskScore: int = 0,
                  created: str = None,
@@ -29,7 +28,6 @@ class UserModel:
         self.familyName = familyName
         self.active = active
         self.emails = emails or []
-        self.groups_list = groups_list or []
         self.dept = dept
         self.riskScore = riskScore
         
@@ -44,9 +42,8 @@ class UserModel:
             'userName': self.userName,
             'givenName': self.givenName,
             'familyName': self.familyName,
-            'active': int(self.active),  # SQLite boolean como integer
-            'emails': json.dumps(self.emails),  # JSON como texto
-            'groups_list': json.dumps(self.groups_list),  # JSON como texto
+            'active': int(self.active),
+            'emails': json.dumps(self.emails),
             'dept': self.dept,
             'riskScore': self.riskScore,
             'created': self.created,
@@ -63,7 +60,6 @@ class UserModel:
             familyName=data['familyName'],
             active=bool(data['active']),
             emails=json.loads(data['emails']) if data['emails'] else [],
-            groups_list=json.loads(data['groups_list']) if data['groups_list'] else [],
             dept=data['dept'],
             riskScore=data['riskScore'],
             created=data['created'],
@@ -72,7 +68,7 @@ class UserModel:
 
 
 class GroupModel:
-    """Modelo de datos para tabla groups (opcional)"""
+    """Modelo de datos para tabla groups"""
     
     def __init__(self,
                  id: str = None,
@@ -94,7 +90,7 @@ class GroupModel:
         return {
             'id': self.id,
             'displayName': self.displayName,
-            'members': json.dumps(self.members),  # JSON como texto
+            'members': json.dumps(self.members),
             'created': self.created,
             'lastModified': self.lastModified
         }
@@ -111,16 +107,15 @@ class GroupModel:
         )
 
 
-# DDL para creación de tablas con índices optimizados
+# DDL para tablas mejoradas SIN redundancia
 CREATE_USERS_TABLE = """
 CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY,
     userName TEXT UNIQUE NOT NULL,
     givenName TEXT,
     familyName TEXT,
-    active INTEGER DEFAULT 1,  -- Boolean como integer (0/1)
+    active INTEGER DEFAULT 1,
     emails TEXT,  -- JSON array como texto
-    groups_list TEXT,  -- JSON array como texto
     dept TEXT,
     riskScore INTEGER DEFAULT 0,
     created TEXT NOT NULL,
@@ -132,13 +127,13 @@ CREATE_GROUPS_TABLE = """
 CREATE TABLE IF NOT EXISTS groups (
     id TEXT PRIMARY KEY,
     displayName TEXT UNIQUE NOT NULL,
-    members TEXT,  -- JSON array como texto
+    members TEXT,  -- JSON array con user IDs
     created TEXT NOT NULL,
     lastModified TEXT NOT NULL
 )
 """
 
-# Índices optimizados para búsquedas SCIM
+# Índices optimizados
 CREATE_INDEXES = [
     "CREATE INDEX IF NOT EXISTS idx_users_userName ON users(userName)",
     "CREATE INDEX IF NOT EXISTS idx_users_active ON users(active)",

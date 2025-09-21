@@ -50,15 +50,15 @@ class UserRepository:
             # Query de inserción con parámetros (protección SQL injection)
             insert_query = """
                 INSERT INTO users 
-                (id, userName, givenName, familyName, active, emails, groups_list, dept, riskScore, created, lastModified)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                (id, userName, givenName, familyName, active, emails, dept, riskScore, created, lastModified)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """
             
             params = (
                 user_data['id'], user_data['userName'], user_data['givenName'],
                 user_data['familyName'], user_data['active'], user_data['emails'],
-                user_data['groups_list'], user_data['dept'], user_data['riskScore'],
-                user_data['created'], user_data['lastModified']
+                user_data['dept'], user_data['riskScore'], user_data['created'], 
+                user_data['lastModified']
             )
             
             # Ejecutar inserción
@@ -104,21 +104,45 @@ class UserRepository:
             logger.error("Failed to get user by ID", error=str(e), userId=user_id)
             raise DatabaseError(f"Failed to get user by ID: {str(e)}")
     
-    def update_user(self, user_id: str, updates: Dict[str, Any]) -> UserModel:
+    def get_user_groups(self, user_id: str) -> List[str]:
         """
-        Actualización parcial (PATCH)
+        NUEVO: Obtener grupos de un usuario de forma consistente desde tabla groups
         
         Args:
-            user_id: ID del usuario a actualizar
-            updates: Diccionario con campos a actualizar
+            user_id: ID del usuario
             
         Returns:
-            UserModel: Usuario actualizado
-            
-        Raises:
-            UserNotFoundError: Si usuario no existe
-            DatabaseError: Error en base de datos
+            List[str]: Lista de displayNames de grupos donde el usuario es miembro
         """
+        try:
+            # Buscar en la tabla groups donde el user_id esté en members
+            query = "SELECT displayName FROM groups WHERE members LIKE ?"
+            search_pattern = f'%"{user_id}"%'
+            
+            results = self.db.execute_query(query, (search_pattern,))
+            
+            # Verificar que realmente está en la lista de miembros (validación adicional)
+            valid_groups = []
+            for row in results:
+                # Obtener el grupo completo para verificar membership
+                group_query = "SELECT members FROM groups WHERE displayName = ?"
+                group_results = self.db.execute_query(group_query, (row['displayName'],))
+                
+                if group_results:
+                    import json
+                    members = json.loads(group_results[0]['members']) if group_results[0]['members'] else []
+                    if user_id in members:
+                        valid_groups.append(row['displayName'])
+            
+            logger.debug("User groups retrieved", userId=user_id, groupCount=len(valid_groups))
+            return valid_groups
+            
+        except Exception as e:
+            logger.error("Failed to get user groups", error=str(e), userId=user_id)
+            raise DatabaseError(f"Failed to get user groups: {str(e)}")
+    
+    def update_user(self, user_id: str, updates: Dict[str, Any]) -> UserModel:
+        """Actualización parcial (PATCH) - SIN groups_list"""
         try:
             # Verificar que el usuario existe
             existing_user = self.get_user_by_id(user_id)
@@ -135,13 +159,13 @@ class UserRepository:
             params = []
             
             # Campos permitidos para actualización
-            allowed_fields = ['userName', 'givenName', 'familyName', 'active', 'emails', 'groups_list', 'dept', 'riskScore']
+            allowed_fields = ['userName', 'givenName', 'familyName', 'active', 'emails', 'dept', 'riskScore']
             
             for field, value in updates.items():
                 if field in allowed_fields:
                     set_clauses.append(f"{field} = ?")
                     # Convertir listas a JSON si es necesario
-                    if field in ['emails', 'groups_list'] and isinstance(value, list):
+                    if field == 'emails' and isinstance(value, list):
                         import json
                         params.append(json.dumps(value))
                     else:

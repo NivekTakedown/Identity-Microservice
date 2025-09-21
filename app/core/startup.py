@@ -35,26 +35,76 @@ def seed_initial_data():
         logger.info("Initial data already exists, skipping seed")
         return
     
-    # Crear grupos iniciales
+    # 1. Crear usuarios PRIMERO (SIN groups_list)
+    initial_users = [
+        UserModel(
+            id='usr_jdoe',
+            userName='jdoe',
+            givenName='John',
+            familyName='Doe',
+            active=True,
+            emails=['john.doe@company.com'],
+            dept='HR',
+            riskScore=20
+        ),
+        UserModel(
+            id='usr_agonzalez',
+            userName='agonzalez',
+            givenName='Ana',
+            familyName='González',
+            active=True,
+            emails=['ana.gonzalez@company.com'],
+            dept='Finance',
+            riskScore=30
+        ),
+        UserModel(
+            id='usr_mrios',
+            userName='mrios',
+            givenName='Miguel',
+            familyName='Ríos',
+            active=False,
+            emails=['miguel.rios@company.com'],
+            dept='IT',
+            riskScore=15
+        )
+    ]
+    
+    # Insertar usuarios usando parámetros (protección SQL injection)
+    insert_user_query = """
+        INSERT INTO users 
+        (id, userName, givenName, familyName, active, emails, dept, riskScore, created, lastModified)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """
+    
+    for user in initial_users:
+        user_data = user.to_dict()
+        db.execute_insert(insert_user_query, (
+            user_data['id'], user_data['userName'], user_data['givenName'], 
+            user_data['familyName'], user_data['active'], user_data['emails'], 
+            user_data['dept'], user_data['riskScore'], user_data['created'], 
+            user_data['lastModified']
+        ))
+    
+    # 2. Crear grupos DESPUÉS con membresías consistentes
     initial_groups = [
         GroupModel(
             id='grp_hr_readers',
             displayName='HR_READERS',
-            members=[]  # Se asignarán después
+            members=['usr_jdoe']  # Asignación directa y consistente
         ),
         GroupModel(
             id='grp_fin_approvers',
             displayName='FIN_APPROVERS',
-            members=[]
+            members=['usr_agonzalez']
         ),
         GroupModel(
             id='grp_admins',
             displayName='ADMINS',
-            members=[]
+            members=['usr_mrios']
         )
     ]
     
-    # Insertar grupos
+    # Insertar grupos con membresías correctas
     insert_group_query = """
         INSERT INTO groups 
         (id, displayName, members, created, lastModified)
@@ -67,72 +117,6 @@ def seed_initial_data():
             group_data['id'], group_data['displayName'], group_data['members'],
             group_data['created'], group_data['lastModified']
         ))
-    
-    # Crear usuarios iniciales usando UserModel
-    initial_users = [
-        UserModel(
-            id='usr_jdoe',
-            userName='jdoe',
-            givenName='John',
-            familyName='Doe',
-            active=True,
-            emails=['john.doe@company.com'],
-            groups_list=['HR_READERS'],
-            dept='HR',
-            riskScore=20
-        ),
-        UserModel(
-            id='usr_agonzalez',
-            userName='agonzalez',
-            givenName='Ana',
-            familyName='González',
-            active=True,
-            emails=['ana.gonzalez@company.com'],
-            groups_list=['FIN_APPROVERS'],
-            dept='Finance',
-            riskScore=30
-        ),
-        UserModel(
-            id='usr_mrios',
-            userName='mrios',
-            givenName='Miguel',
-            familyName='Ríos',
-            active=False,
-            emails=['miguel.rios@company.com'],
-            groups_list=['ADMINS'],
-            dept='IT',
-            riskScore=15
-        )
-    ]
-    
-    # Insertar usuarios usando parámetros (protección SQL injection)
-    insert_user_query = """
-        INSERT INTO users 
-        (id, userName, givenName, familyName, active, emails, groups_list, dept, riskScore, created, lastModified)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """
-    
-    for user in initial_users:
-        user_data = user.to_dict()
-        db.execute_insert(insert_user_query, (
-            user_data['id'], user_data['userName'], user_data['givenName'], 
-            user_data['familyName'], user_data['active'], user_data['emails'], 
-            user_data['groups_list'], user_data['dept'], user_data['riskScore'], 
-            user_data['created'], user_data['lastModified']
-        ))
-    
-    # Actualizar grupos con miembros (relaciones Many-to-Many)
-    group_memberships = {
-        'grp_hr_readers': ['usr_jdoe'],
-        'grp_fin_approvers': ['usr_agonzalez'],
-        'grp_admins': ['usr_mrios']
-    }
-    
-    import json
-    for group_id, members in group_memberships.items():
-        members_json = json.dumps(members)
-        update_query = "UPDATE groups SET members = ? WHERE id = ?"
-        db.execute_update(update_query, (members_json, group_id))
     
     logger.info("Initial data seeded", 
                 users_created=len(initial_users), 
