@@ -12,6 +12,7 @@ from app.core.startup import initialize_singletons, seed_initial_data
 
 # Import routers
 from app.views.scim_users import router as scim_users_router
+from app.views.scim_groups import router as scim_groups_router
 
 # Configurar logging primero
 configure_logging()
@@ -62,6 +63,7 @@ app.add_middleware(
 
 # Incluir routers SCIM
 app.include_router(scim_users_router)
+app.include_router(scim_groups_router)
 
 @app.get("/")
 async def root():
@@ -69,7 +71,13 @@ async def root():
     return {
         "message": f"{settings.app_name} - Ready",
         "version": settings.app_version,
-        "environment": settings.environment
+        "environment": settings.environment,
+        "endpoints": {
+            "scim_users": "/scim/v2/Users",
+            "scim_groups": "/scim/v2/Groups",
+            "docs": "/docs",
+            "health": "/health"
+        }
     }
 
 @app.get("/health")
