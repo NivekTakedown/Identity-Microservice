@@ -116,7 +116,7 @@ class UserRepository:
         """
         try:
             # Buscar en la tabla groups donde el user_id esté en members
-            query = "SELECT displayName FROM groups WHERE members LIKE ?"
+            query = "SELECT displayName, members FROM groups WHERE members LIKE ?"
             search_pattern = f'%"{user_id}"%'
             
             results = self.db.execute_query(query, (search_pattern,))
@@ -124,17 +124,24 @@ class UserRepository:
             # Verificar que realmente está en la lista de miembros (validación adicional)
             valid_groups = []
             for row in results:
-                # Obtener el grupo completo para verificar membership
-                group_query = "SELECT members FROM groups WHERE displayName = ?"
-                group_results = self.db.execute_query(group_query, (row['displayName'],))
-                
-                if group_results:
+                try:
                     import json
-                    members = json.loads(group_results[0]['members']) if group_results[0]['members'] else []
+                    members = json.loads(row['members']) if row['members'] else []
                     if user_id in members:
                         valid_groups.append(row['displayName'])
+                        logger.debug("User found in group", 
+                                   userId=user_id, groupName=row['displayName'])
+                    else:
+                        logger.debug("User not in group members list", 
+                                   userId=user_id, groupName=row['displayName'])
+                except json.JSONDecodeError as e:
+                    logger.warning("Invalid JSON in group members", 
+                                 groupName=row['displayName'], error=str(e))
             
-            logger.debug("User groups retrieved", userId=user_id, groupCount=len(valid_groups))
+            logger.debug("User groups retrieved", 
+                        userId=user_id, groupCount=len(valid_groups), 
+                        groups=valid_groups)  # Logging detallado
+            
             return valid_groups
             
         except Exception as e:

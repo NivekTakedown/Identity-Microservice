@@ -160,22 +160,58 @@ class GroupRepository:
             GroupModel: Grupo actualizado
         """
         try:
-            group = self.get_group_by_id(group_id)
-            if not group:
+            # Verificar que el grupo existe
+            existing_group = self.get_group_by_id(group_id)
+            if not existing_group:
                 raise GroupNotFoundError(f"Group with ID '{group_id}' not found")
             
-            # Agregar usuario si no está ya en el grupo
-            if user_id not in group.members:
-                group.members.append(user_id)
-                return self.update_group_members(group_id, group.members)
+            # Verificar si el usuario ya es miembro (evitar duplicados)
+            if user_id in existing_group.members:
+                logger.info("User already member of group", 
+                            groupId=group_id, userId=user_id)
+                return existing_group
             
-            logger.debug("User already member of group", groupId=group_id, userId=user_id)
-            return group
+            # Agregar usuario a la lista de miembros
+            updated_members = existing_group.members + [user_id]
+            
+            # Actualizar timestamp
+            now = datetime.utcnow().isoformat() + "Z"
+            
+            # Preparar datos para actualización
+            import json
+            members_json = json.dumps(updated_members)
+            
+            # Query de actualización
+            update_query = """
+                UPDATE groups 
+                SET members = ?, lastModified = ? 
+                WHERE id = ?
+            """
+            
+            # Ejecutar actualización
+            rows_affected = self.db.execute_update(
+                update_query, 
+                (members_json, now, group_id)
+            )
+            
+            if rows_affected == 0:
+                raise GroupNotFoundError(f"Group with ID '{group_id}' not found")
+            
+            # Obtener grupo actualizado
+            updated_group = self.get_group_by_id(group_id)
+            
+            logger.info("Member added to group successfully", 
+                        groupId=group_id, userId=user_id, 
+                        memberCount=len(updated_group.members),
+                        members=updated_group.members)  # Logging detallado
+            
+            return updated_group
             
         except GroupNotFoundError:
             raise
         except Exception as e:
-            logger.error("Failed to add member to group", error=str(e), groupId=group_id, userId=user_id)
+            logger.error("Failed to add member to group", 
+                        error=str(e), groupId=group_id, userId=user_id)
             raise DatabaseError(f"Failed to add member to group: {str(e)}")
     
     def remove_member_from_group(self, group_id: str, user_id: str) -> GroupModel:

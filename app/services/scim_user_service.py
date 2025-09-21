@@ -70,6 +70,9 @@ class SCIMUserService:
                             assigned_groups.append(group_name)
                             logger.debug("User added to group", 
                                        userId=created_user.id, groupName=group_name)
+                        else:
+                            logger.warning("Group not found when adding member", 
+                                         userId=created_user.id, groupName=group_name)
                     except Exception as e:
                         logger.warning("Failed to add user to group", 
                                      userId=created_user.id, groupName=group_name, error=str(e))
@@ -83,7 +86,8 @@ class SCIMUserService:
             
             logger.info("SCIM user created successfully", 
                        userId=created_user.id, userName=created_user.userName,
-                       assignedGroups=len(assigned_groups))
+                       assignedGroups=len(assigned_groups),
+                       finalGroups=len(final_groups))  # Agregar logging para debug
             
             return scim_user
             
