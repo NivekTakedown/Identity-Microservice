@@ -17,3 +17,4 @@ structlog
 PyJWT
 cryptography
 python-jose[cryptography]
+slowapi

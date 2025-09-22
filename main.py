@@ -10,10 +10,14 @@ from app.core.logger import configure_logging, get_logger
 from app.core.middleware import LoggingMiddleware
 from app.core.startup import initialize_singletons, seed_initial_data
 from app.core.auth_middleware import AuthMiddleware
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 # Import routers
 from app.views.scim_users import router as scim_users_router
 from app.views.scim_groups import router as scim_groups_router
+from app.views.auth_router import router as auth_router
 
 # Configurar logging primero
 configure_logging()
@@ -42,6 +46,9 @@ async def lifespan(app: FastAPI):
     # Shutdown
     logger.info("Application shutdown", service=settings.app_name)
 
+# Crear limiter global
+limiter = Limiter(key_func=get_remote_address)
+
 app = FastAPI(
     title=settings.app_name,
     description="Microservicio de Identidades Digitales - SCIM 2.0, OAuth2 y ABAC",
@@ -49,6 +56,10 @@ app = FastAPI(
     debug=settings.debug,
     lifespan=lifespan
 )
+
+# Configurar rate limiting globalmente
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Añadir middleware de logging
 app.add_middleware(LoggingMiddleware)
@@ -65,7 +76,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Incluir routers SCIM
+# Incluir routers
+app.include_router(auth_router)  # Nuevo router de autenticación
 app.include_router(scim_users_router)
 app.include_router(scim_groups_router)
 
@@ -77,6 +89,8 @@ async def root():
         "version": settings.app_version,
         "environment": settings.environment,
         "endpoints": {
+            "authentication": "/auth/token",
+            "user_info": "/auth/me", 
             "scim_users": "/scim/v2/Users",
             "scim_groups": "/scim/v2/Groups",
             "docs": "/docs",
