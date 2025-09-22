@@ -1,0 +1,98 @@
+{
+	"info": {
+		"_postman_id": "c15b634c-42de-47b1-a888-2f7b76548ba7",
+		"name": "Auth",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "28039781",
+		"_collection_link": "https://universal-equinox-592465.postman.co/workspace/cf321a6d-72f7-4cbc-9370-489e5085d30c/collection/28039781-c15b634c-42de-47b1-a888-2f7b76548ba7?action=share&source=collection_link&creator=28039781"
+	},
+	"item": [
+		{
+			"name": "Generar Token - Client Credentials",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "{{CONTENT_TYPE}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"grant_type\": \"client_credentials\",\n    \"client_id\": \"test_client\",\n    \"client_secret\": \"test_secret\",\n    \"scope\": \"read write\"\n  }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/auth/token",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"auth",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Generar Token - Password Grant",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "{{CONTENT_TYPE}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"grant_type\": \"password\",\n    \"username\": \"mrios\",\n    \"password\": \"admin_pass\"\n  }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/auth/token",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"auth",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Validar Token y Obtener Claims",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NTg1MDEwNzgsImV4cCI6MTc1ODUwNDY3OCwiaXNzIjoiaWRlbnRpdHktbWljcm9zZXJ2aWNlIiwiYXVkIjoiaWRlbnRpdHktYXBpIiwic3ViIjoiamRvZSIsInNjb3BlIjoicmVhZCIsImdyb3VwcyI6WyJIUl9SRUFERVJTIl0sImRlcHQiOiJIUiIsInJpc2tTY29yZSI6MjB9.YYFG8iJE7OZXDheyxmQHdYM28AjIwXlABsue8tco3Hs"
+					}
+				],
+				"url": {
+					"raw": "{{BASE_URL}}/auth/me",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"auth",
+						"me"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

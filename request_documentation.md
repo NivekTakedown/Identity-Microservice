@@ -1,5 +1,5 @@
 # Guía de Testing de Endpoints
-
+![Endpoints disponibles](Descomposición.png)
 ## Configuración Inicial
 
 ### Variables de Entorno
