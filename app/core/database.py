@@ -8,6 +8,7 @@ from typing import Dict, List, Optional, Any
 from pathlib import Path
 from app.core.config import get_settings
 from app.core.logger import get_logger
+from app.models.database import CREATE_USERS_TABLE, CREATE_GROUPS_TABLE, CREATE_INDEXES
 
 logger = get_logger("database")
 
@@ -56,43 +57,22 @@ class DatabaseManager:
             conn.close()
     
     def _create_tables(self):
-        """Crear tablas iniciales"""
+        """Crear tablas e índices optimizados"""
         with self.get_connection() as conn:
-            # Tabla users con campos SCIM
-            conn.execute("""
-                CREATE TABLE IF NOT EXISTS users (
-                    id TEXT PRIMARY KEY,
-                    userName TEXT UNIQUE NOT NULL,
-                    givenName TEXT,
-                    familyName TEXT,
-                    active BOOLEAN DEFAULT 1,
-                    emails TEXT,  -- JSON array como texto
-                    groups_list TEXT,  -- JSON array como texto
-                    dept TEXT,
-                    riskScore INTEGER DEFAULT 0,
-                    created TEXT NOT NULL,
-                    lastModified TEXT NOT NULL
-                )
-            """)
+            # Crear tabla users
+            conn.execute(CREATE_USERS_TABLE)
+            logger.debug("Users table created/verified")
             
-            # Tabla groups (opcional)
-            conn.execute("""
-                CREATE TABLE IF NOT EXISTS groups (
-                    id TEXT PRIMARY KEY,
-                    displayName TEXT UNIQUE NOT NULL,
-                    members TEXT,  -- JSON array como texto
-                    created TEXT NOT NULL,
-                    lastModified TEXT NOT NULL
-                )
-            """)
+            # Crear tabla groups (opcional)
+            conn.execute(CREATE_GROUPS_TABLE)
+            logger.debug("Groups table created/verified")
             
-            # Índices para optimizar búsquedas
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_users_userName ON users(userName)")
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_users_active ON users(active)")
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_groups_displayName ON groups(displayName)")
+            # Crear índices optimizados para búsquedas SCIM
+            for index_sql in CREATE_INDEXES:
+                conn.execute(index_sql)
             
             conn.commit()
-            logger.info("Database tables created/verified")
+            logger.info("Database schema created with optimized indexes")
     
     def execute_query(self, query: str, params: tuple = ()) -> List[Dict[str, Any]]:
         """Ejecutar query SELECT con parámetros (protección SQL injection)"""

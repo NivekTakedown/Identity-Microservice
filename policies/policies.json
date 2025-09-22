@@ -1,25 +1,66 @@
 {
+  "version": "1.0",
+  "description": "Políticas ABAC para Microservicio de Identidades",
   "policies": [
     {
-      "ruleId": "HR-Payroll-01",
+      "ruleId": "ADMIN-OVERRIDE-01",
       "effect": "Permit",
-      "description": "HR department can access payroll on trusted devices",
+      "description": "Administradores pueden acceder a todo excepto producción crítica",
+      "priority": 10,
       "conditions": {
-        "subject.dept": {
-          "eq": "HR"
-        },
-        "resource.type": {
-          "eq": "payroll"
-        },
-        "context.deviceTrusted": {
-          "eq": true
-        }
+        "AND": [
+          {
+            "subject.groups": {
+              "contains": "ADMINS"
+            }
+          },
+          {
+            "OR": [
+              {
+                "resource.env": {
+                  "ne": "prod"
+                }
+              },
+              {
+                "resource.classification": {
+                  "ne": "critical"
+                }
+              }
+            ]
+          }
+        ]
       }
     },
     {
-      "ruleId": "Risk-StepUp-01",
+      "ruleId": "HR-PAYROLL-01",
+      "effect": "Permit", 
+      "description": "HR department can access payroll on trusted devices",
+      "priority": 20,
+      "conditions": {
+        "AND": [
+          {
+            "subject.dept": {
+              "eq": "HR"
+            }
+          },
+          {
+            "resource.type": {
+              "eq": "payroll"
+            }
+          },
+          {
+            "context.deviceTrusted": {
+              "eq": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "ruleId": "RISK-STEPUP-01",
       "effect": "Challenge",
       "description": "High risk users or non-approved geo require step-up",
+      "priority": 5,
       "conditions": {
         "OR": [
           {
@@ -29,25 +70,93 @@
           },
           {
             "context.geo": {
-              "not_in": [
-                "CL",
-                "CO"
-              ]
+              "not_in": ["CL", "CO", "AR", "PE"]
+            }
+          },
+          {
+            "AND": [
+              {
+                "resource.env": {
+                  "eq": "prod"
+                }
+              },
+              {
+                "context.timeOfDay": {
+                  "not_in": ["09:00-18:00"]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "ruleId": "FINANCE-SENSITIVE-01",
+      "effect": "Challenge",
+      "description": "Finance data requires additional verification",
+      "priority": 15,
+      "conditions": {
+        "AND": [
+          {
+            "resource.type": {
+              "in": ["financial", "budget", "expenses"]
+            }
+          },
+          {
+            "OR": [
+              {
+                "subject.dept": {
+                  "ne": "Finance"
+                }
+              },
+              {
+                "context.deviceTrusted": {
+                  "eq": false
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "ruleId": "BUSINESS-HOURS-01",
+      "effect": "Permit",
+      "description": "Normal access during business hours from approved locations",
+      "priority": 50,
+      "conditions": {
+        "AND": [
+          {
+            "context.timeOfDay": {
+              "gte": "09:00"
+            }
+          },
+          {
+            "context.timeOfDay": {
+              "lte": "18:00"
+            }
+          },
+          {
+            "context.geo": {
+              "in": ["CL", "CO"]
+            }
+          },
+          {
+            "subject.riskScore": {
+              "lt": 50
             }
           }
         ]
       }
     },
     {
-      "ruleId": "Admins-NonProd-01",
-      "effect": "Permit",
-      "description": "Admins can access non-prod, challenge for prod",
+      "ruleId": "DEFAULT-DENY-01",
+      "effect": "Deny",
+      "description": "Default deny when no other policies apply",
+      "priority": 1000,
       "conditions": {
-        "subject.groups": {
-          "contains": "ADMINS"
-        },
-        "resource.env": {
-          "ne": "prod"
+        "subject.dept": {
+          "ne": null
         }
       }
     }

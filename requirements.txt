@@ -12,3 +12,9 @@ httpx
 
 # Logging estructurado
 structlog
+
+# Seguridad
+PyJWT
+cryptography
+python-jose[cryptography]
+slowapi
