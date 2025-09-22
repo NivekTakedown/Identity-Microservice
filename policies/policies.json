@@ -156,7 +156,7 @@
       "priority": 1000,
       "conditions": {
         "subject.dept": {
-          "ne": null
+          "eq": "INVALID_DEPARTMENT_THAT_NEVER_EXISTS"
         }
       }
     }
