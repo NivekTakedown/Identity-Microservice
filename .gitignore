@@ -68,5 +68,3 @@ logs/
 ehthumbs.db
 Thumbs.db
 
-# Docker
-.dockerignore
