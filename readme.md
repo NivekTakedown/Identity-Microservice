@@ -13,6 +13,20 @@ El microservicio implementa los siguientes flujos principales:
 - **👥 Gestión SCIM**: Administración de usuarios y grupos según estándar SCIM 2.0
 - **📊 Monitoreo**: Health checks 
 
+## Rutas
+
+![Endpoints por Módulo](Descomposición.png)
+
+Para facilitar las pruebas, se incluyen colecciones de Postman organizadas por módulo:
+
+- **[Auth](./postman/Auth.postman_collection.json)** - Autenticación y gestión de tokens JWT
+- **[Authz](./postman/Authz.postman_collection.json)** - Evaluación de políticas ABAC y autorización  
+- **[SCIM Users](./postman/SCIM-Users.postman_collection.json)** - Gestión de usuarios según estándar SCIM 2.0
+- **[SCIM Groups](./postman/SCIM-Groups.postman_collection.json)** - Administración de grupos y membresías
+
+Para documentación detallada de cada endpoint, consultar [request_documentation.md](./request_documentation.md).
+
+
 ## Características Principales
 
 ### ✅ Autenticación y Autorización
@@ -163,11 +177,31 @@ open http://localhost:8000/docs
 
 ### Usuarios Predefinidos
 
-| Usuario    | Password     | Departamento | Grupos       | Rol   |
-|------------|--------------|--------------|--------------|-------|
-| mrios      | admin_pass   | IT           | ADMINS       | Admin |
-| jdoe       | password123  | HR           | HR_READERS   | User  |
-| agonzalez  | finance2024  | Finance      | FIN_APPROVERS| User  |
+El sistema incluye usuarios de prueba predefinidos para testing:
+
+| Usuario    | Password     | Departamento | Grupos         | Risk Score | Descripción |
+|------------|--------------|--------------|----------------|------------|-------------|
+| mrios      | admin_pass   | IT           | ADMINS         | 15         | Administrador del sistema |
+| jdoe       | password123  | HR           | HR_READERS     | 20         | Usuario de Recursos Humanos |
+| agonzalez  | finance2024  | Finance      | FIN_APPROVERS  | 30         | Aprobador de Finanzas |
+
+### Clientes de Servicio (Client Credentials)
+
+Para autenticación de servicios externos:
+
+| Client ID   | Client Secret | Scopes      | Descripción |
+|-------------|---------------|-------------|-------------|
+| test_client | test_secret   | read write  | Cliente de prueba general |
+| hr_app      | hr_secret_2024| read        | Aplicación de RRHH |
+
+### Grupos Predefinidos
+
+| Grupo         | Descripción                    | Permisos Típicos |
+|---------------|--------------------------------|------------------|
+| ADMINS        | Administradores del sistema    | Acceso completo excepto prod crítico |
+| HR_READERS    | Lectores de Recursos Humanos   | Acceso a datos de empleados y nómina |
+| FIN_APPROVERS | Aprobadores de Finanzas        | Aprobación de transacciones financieras |
+| DEVELOPERS    | Desarrolladores                | Acceso a entornos de desarrollo |
 
 ### Scripts de Prueba
 

@@ -1,0 +1,192 @@
+{
+	"info": {
+		"_postman_id": "21c1f43b-6679-42f5-be3f-7f72af04536f",
+		"name": "SCIM Users",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "28039781",
+		"_collection_link": "https://universal-equinox-592465.postman.co/workspace/cf321a6d-72f7-4cbc-9370-489e5085d30c/collection/28039781-21c1f43b-6679-42f5-be3f-7f72af04536f?action=share&source=collection_link&creator=28039781"
+	},
+	"item": [
+		{
+			"name": "Crear Usuario (POST /scim/v2/Users)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "{{CONTENT_TYPE}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"userName\": \"newuser\",\n  \"name\": {\n    \"givenName\": \"Jane\",\n    \"familyName\": \"Smith\"\n  },\n  \"active\": true,\n  \"emails\": [\n    {\n      \"value\": \"jane.smith@company.com\",\n      \"primary\": true,\n      \"type\": \"work\"\n    }\n  ],\n  \"groups\": [\"HR_READERS\"],\n  \"dept\": \"Marketing\",\n  \"riskScore\": 25,\n  \"schemas\": [\"urn:ietf:params:scim:schemas:core:2.0:User\"]\n}\n",
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/scim/v2/Users\n",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"scim",
+						"v2",
+						"Users\n"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener Usuario por ID (GET /scim/v2/Users/{id})",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "{{CONTENT_TYPE}}"
+					}
+				],
+				"url": {
+					"raw": "{{BASE_URL}}/scim/v2/Users/usr_jdoe",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"scim",
+						"v2",
+						"Users",
+						"usr_jdoe"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Actualizar Usuario (PATCH /scim/v2/Users/{id})",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "{{CONTENT_TYPE}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"active\": false,\n    \"riskScore\": 50,\n    \"groups\": [\"HR_READERS\", \"ADMINS\"]\n  }",
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/scim/v2/Users/usr_jdoe",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"scim",
+						"v2",
+						"Users",
+						"usr_jdoe"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Buscar Usuario por userName (GET /scim/v2/Users?filter=)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "{{CONTENT_TYPE}}"
+					}
+				],
+				"url": {
+					"raw": "{{BASE_URL}}/scim/v2/Users?filter=userName%20eq%20%22jdoe%22",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"scim",
+						"v2",
+						"Users"
+					],
+					"query": [
+						{
+							"key": "filter",
+							"value": "userName%20eq%20%22jdoe%22"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Listar Todos los Usuarios (GET /scim/v2/Users)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "{{CONTENT_TYPE}}"
+					}
+				],
+				"url": {
+					"raw": "{{BASE_URL}}/scim/v2/Users?startIndex=1&count=10",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"scim",
+						"v2",
+						"Users"
+					],
+					"query": [
+						{
+							"key": "startIndex",
+							"value": "1"
+						},
+						{
+							"key": "count",
+							"value": "10"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Eliminar Usuario (DELETE /scim/v2/Users/{id})",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "{{CONTENT_TYPE}}"
+					}
+				],
+				"url": {
+					"raw": "{{BASE_URL}}/scim/v2/Users/usr_mrios",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"scim",
+						"v2",
+						"Users",
+						"usr_mrios"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

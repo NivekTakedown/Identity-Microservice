@@ -1,0 +1,182 @@
+{
+	"info": {
+		"_postman_id": "725fc565-e217-430f-afe6-2dbb0873d762",
+		"name": "SCIM Groups",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "28039781",
+		"_collection_link": "https://universal-equinox-592465.postman.co/workspace/cf321a6d-72f7-4cbc-9370-489e5085d30c/collection/28039781-725fc565-e217-430f-afe6-2dbb0873d762?action=share&source=collection_link&creator=28039781"
+	},
+	"item": [
+		{
+			"name": "Crear Grupo (POST /scim/v2/Groups)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "{{CONTENT_TYPE}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"displayName\": \"DEVELOPERS\",\n    \"members\": [\n      {\n        \"value\": \"usr_jdoe\",\n        \"display\": \"jdoe\"\n      }\n    ],\n    \"schemas\": [\"urn:ietf:params:scim:schemas:core:2.0:Group\"]\n  }",
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/scim/v2/Groups",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"scim",
+						"v2",
+						"Groups"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener Grupo por ID (GET /scim/v2/Groups/{id})",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "{{CONTENT_TYPE}}"
+					}
+				],
+				"url": {
+					"raw": "{{BASE_URL}}/scim/v2/Groups/grp_hr_readers",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"scim",
+						"v2",
+						"Groups",
+						"grp_hr_readers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Actualizar Miembros del Grupo (PATCH /scim/v2/Groups/{id})",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "{{CONTENT_TYPE}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"members\": [\n      {\n        \"value\": \"usr_jdoe\",\n        \"display\": \"jdoe\"\n      },\n      {\n        \"value\": \"usr_agonzalez\",\n        \"display\": \"agonzalez\"\n      }\n    ]\n  }",
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/scim/v2/Groups/grp_hr_readers",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"scim",
+						"v2",
+						"Groups",
+						"grp_hr_readers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Buscar Grupo por displayName (GET /scim/v2/Groups?filter=)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "{{CONTENT_TYPE}}"
+					}
+				],
+				"url": {
+					"raw": "{{BASE_URL}}/scim/v2/Groups?filter=displayName%20eq%20%22HR_READERS%22",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"scim",
+						"v2",
+						"Groups"
+					],
+					"query": [
+						{
+							"key": "filter",
+							"value": "displayName%20eq%20%22HR_READERS%22"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Listar Todos los Grupos (GET /scim/v2/Groups)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "{{CONTENT_TYPE}}"
+					}
+				],
+				"url": {
+					"raw": "{{BASE_URL}}/scim/v2/Groups",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"scim",
+						"v2",
+						"Groups"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Eliminar Group  (DELETE /scim/v2/Groups/{id})",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "{{CONTENT_TYPE}}"
+					}
+				],
+				"url": {
+					"raw": "{{BASE_URL}}/scim/v2/Groups/grp_db61adaf",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"scim",
+						"v2",
+						"Groups",
+						"grp_db61adaf"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
