@@ -9,6 +9,7 @@ from app.core.config import get_settings, validate_configuration
 from app.core.logger import configure_logging, get_logger
 from app.core.middleware import LoggingMiddleware
 from app.core.startup import initialize_singletons, seed_initial_data
+from app.core.auth_middleware import AuthMiddleware
 
 # Import routers
 from app.views.scim_users import router as scim_users_router
@@ -51,6 +52,9 @@ app = FastAPI(
 
 # Añadir middleware de logging
 app.add_middleware(LoggingMiddleware)
+
+# Añadir middleware de autenticación (después del logging middleware)
+app.add_middleware(AuthMiddleware, auto_error=False)
 
 # Configurar CORS
 app.add_middleware(
