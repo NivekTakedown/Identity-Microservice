@@ -142,8 +142,8 @@ prueba-sek/
 
 1. **Clonar el repositorio**
    ```bash
-   git clone  git@github.com:NivekTakedown/Identity-Microservice.git prueba-sek
-   cd prueba-sek
+   git clone  git@github.com:NivekTakedown/Identity-Microservice.git 
+   cd Identity-Microservice/
    ```
 
 2. **Configurar variables de entorno**
@@ -154,7 +154,7 @@ prueba-sek/
 
 3. **Ejecutar con Docker Compose**
    ```bash
-   docker-compose up -d
+   docker-compose up --build
    ```
 
 4. **Verificar el estado**
