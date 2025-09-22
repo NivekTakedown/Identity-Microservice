@@ -18,6 +18,7 @@ from slowapi.errors import RateLimitExceeded
 from app.views.scim_users import router as scim_users_router
 from app.views.scim_groups import router as scim_groups_router
 from app.views.auth_router import router as auth_router
+from app.views.authz import router as authorization_router  # Nuevo import
 
 # Configurar logging primero
 configure_logging()
@@ -76,10 +77,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Incluir routers
-app.include_router(auth_router)  # Nuevo router de autenticación
+# Configurar routers
 app.include_router(scim_users_router)
-app.include_router(scim_groups_router)
+app.include_router(scim_groups_router) 
+app.include_router(auth_router)
+app.include_router(authorization_router)  # Nuevo router
 
 @app.get("/")
 async def root():

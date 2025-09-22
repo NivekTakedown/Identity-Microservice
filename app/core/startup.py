@@ -5,6 +5,7 @@ from app.core.database import get_db
 from app.core.policies import get_policies
 from app.core.logger import get_logger
 from app.models.database import UserModel, GroupModel
+from app.repositories.policy_repository import get_policy_repository
 
 logger = get_logger("startup")
 
@@ -21,6 +22,11 @@ def initialize_singletons():
     policies = get_policies()
     policy_count = len(policies.get_all_policies())
     logger.info("Policies Manager initialized", policies_count=policy_count)
+    
+    # Inicializar PolicyRepository
+    policy_repo = get_policy_repository()
+    logger.info("PolicyRepository initialized", 
+               policies_count=len(policy_repo.get_all_policies()))
     
     logger.info("All singletons initialized successfully")
 
