@@ -21,7 +21,7 @@ limiter = Limiter(key_func=get_remote_address)
 # Router con documentación
 router = APIRouter(
     prefix="/auth",
-    tags=["🔐 Authentication"],
+    tags=["Authentication"],
     responses={
         401: {
             "model": TokenError,
@@ -57,7 +57,7 @@ limiter = Limiter(key_func=get_remote_address)
 @router.post("/token",
              response_model=TokenResponse,
              status_code=status.HTTP_200_OK,
-             summary="🔑 Generate JWT Token",
+             summary=" Generate JWT Token",
              description="""
 Generate a JWT token using OAuth2-like flow.
 
@@ -175,7 +175,7 @@ async def create_token(request: Request, token_request: TokenRequest):
 
 @router.get("/me",
             response_model=UserClaims,
-            summary="👤 Get Current User Info",
+            summary=" Get Current User Info",
             description="""
 Validate JWT token and return user claims.
 
@@ -275,7 +275,7 @@ async def get_current_user_info(request: Request, current_user: UserClaims = Dep
     return current_user
 
 @router.get("/health",
-            summary="🏥 Authentication Service Health",
+            summary=" Authentication Service Health",
             description="Health check for authentication service components",
             tags=["Health"],
             responses={
@@ -315,7 +315,7 @@ async def auth_health():
 
 # Ejemplos adicionales para documentación
 @router.get("/examples",
-            summary="📚 Usage Examples",
+            summary=" Usage Examples",
             description="Get examples of how to use the authentication endpoints",
             include_in_schema=False)  # No incluir en schema principal
 async def get_examples():
