@@ -105,8 +105,8 @@ prueba-sek/
 
 1. **Clonar el repositorio**
    ```bash
-   git clone <repository-url>
-   cd prueba-sek
+   git clone  git@github.com:NivekTakedown/Identity-Microservice.git 
+   cd Identity-Microservice/
    ```
 
 2. **Crear y activar entorno virtual**
